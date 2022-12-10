@@ -122,7 +122,6 @@ def chemincritique(graphe):
 
 
 def createGantt(graphe):
-
     X_limit = graphe.nodes['fin']['dateauplustot']
     hbar = 1
     tasks = ["1", "2", "3", "4"]
@@ -131,27 +130,37 @@ def createGantt(graphe):
     gantt.set_xlabel("Time")
     gantt.set_ylabel("Tasks")
     gantt.set_xlim(0, X_limit)
-    gantt.set_xticks(range(0, X_limit, 6), minor=True)
+    #gantt.set_xticks(range(0, X_limit, 5), minor=True)
+    listedebarre = []
+    for node in graphe.nodes():
+        listedebarre.append(graphe.nodes[node]['dateauplustot'])
+    gantt.set_xticks(listedebarre, minor=True)
     gantt.grid(True, axis='x', which='both')
-    gantt.set_yticks(range(hbar, number_tasks * hbar, hbar), minor=True)
+    #gantt.set_yticks(range(hbar, number_tasks * hbar, hbar), minor=True)
     gantt.grid(True, axis='y', which='minor')
     gantt.set_yticks(np.arange(hbar/2, hbar * number_tasks - hbar/2 + hbar, hbar))
     gantt.set_yticklabels(tasks)
     #partit création gantt
     positiongantt = 1
     for node in graphe.nodes():
+        if node in nodecritique:
+            color = "r"
+            #positiongantt = 1
+        else:
+            color = "b"
+            #positiongantt = positiongantt + 1
         start = int(G.nodes[node]['dateauplustot'])
         duree = int(G.nodes[node]['weight'])
         index_task = positiongantt
         positiongantt = positiongantt +1
         name = node
-        color = "b"
+        #color = "b"
         gantt.broken_barh([(start, duree)], (hbar * index_task, hbar), facecolors=(color))
         gantt.text(x=(start + duree / 2), y=(hbar * index_task + hbar/2),
                    s=f"{name} ({duree})", va='center', color='white')
 
 
-tableau = opencsv("test.csv")
+tableau = opencsv("ex3.csv")
 # print("matrice : ",list(tableau))
 G = graphegenerate(tableau)
 G = graphelvl(G)
@@ -177,8 +186,6 @@ print("list critique : ", nodecritique)
 print("dates au plus tôt de fin : ", G.nodes['fin']['dateauplustot'])
 fig, gantt = plt.subplots()
 createGantt(G)
-
-
 fig, ax = plt.subplots()
 pos = nx.multipartite_layout(G, subset_key="layer")  # organise par niveau de tâche
 nx.draw_networkx(G, pos=pos, ax=ax)
