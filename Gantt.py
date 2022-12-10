@@ -118,9 +118,37 @@ def chemincritique(graphe):
             graphe.nodes[node]['chemincritique']=True
         else:
             graphe.nodes[node]['chemincritique']=False
-    return nodecritique,graphe
+    return nodecritique, graphe
 
 
+def createGantt(graphe):
+
+    X_limit = graphe.nodes['fin']['dateauplustot']
+    hbar = 1
+    tasks = ["1", "2", "3", "4"]
+    niveau = ["1", "2", "3", "4"]
+    number_tasks = len(tasks)
+    gantt.set_xlabel("Time")
+    gantt.set_ylabel("Tasks")
+    gantt.set_xlim(0, X_limit)
+    gantt.set_xticks(range(0, X_limit, 6), minor=True)
+    gantt.grid(True, axis='x', which='both')
+    gantt.set_yticks(range(hbar, number_tasks * hbar, hbar), minor=True)
+    gantt.grid(True, axis='y', which='minor')
+    gantt.set_yticks(np.arange(hbar/2, hbar * number_tasks - hbar/2 + hbar, hbar))
+    gantt.set_yticklabels(tasks)
+    #partit création gantt
+    positiongantt = 1
+    for node in graphe.nodes():
+        start = int(G.nodes[node]['dateauplustot'])
+        duree = int(G.nodes[node]['weight'])
+        index_task = positiongantt
+        positiongantt = positiongantt +1
+        name = node
+        color = "b"
+        gantt.broken_barh([(start, duree)], (hbar * index_task, hbar), facecolors=(color))
+        gantt.text(x=(start + duree / 2), y=(hbar * index_task + hbar/2),
+                   s=f"{name} ({duree})", va='center', color='white')
 
 
 tableau = opencsv("test.csv")
@@ -145,6 +173,10 @@ print("date au plus tard : ", G.nodes.data("dateauplustard"))
 print("marge : ", G.nodes.data("marge"))
 print("chemin critique : ", G.nodes.data("chemincritique"))
 print("list critique : ", nodecritique)
+#print((nodecritique[0]))
+print("dates au plus tôt de fin : ", G.nodes['fin']['dateauplustot'])
+fig, gantt = plt.subplots()
+createGantt(G)
 
 
 fig, ax = plt.subplots()
