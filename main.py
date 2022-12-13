@@ -26,7 +26,6 @@ def graphelvl(graphe):
     graphe.nodes[node]['layer']=-1
   nodelayer = []
   while len(nodelayer) < len(graphe.nodes):
-    print("nodelayer[]",len(nodelayer),nodelayer,"len graphenode",len(graphe.nodes))
     for node in graphe.nodes:
       traite=True
       if node not in nodelayer:
@@ -46,8 +45,6 @@ def graphelvl(graphe):
           if traite:
             graphe.nodes[node]['layer'] = max + 1
             nodelayer.append(node)
-          else :
-            print("ne traite pas",node)
   return graphe
 
 
@@ -77,7 +74,6 @@ def calculdateauplustot(graphe):
 
 
 def dateauplustard(graphe):
-    # listesuccesseurs = []
     dateauplustard = {}
     dateauplustard['fin'] = (graphe.nodes['fin']['dateauplustot'])
     graphe.nodes['fin']['dateauplustard'] = graphe.nodes['fin']['dateauplustot']
@@ -128,8 +124,8 @@ def chemincritique(graphe):
         else:
             graphe.nodes[node]['chemincritique']=False
     for node, layer in sorted(G.nodes.data('layer'), key=lambda layer: layer[1]):
-        print("noden", node)
-        nodecritiquesorted.append(node)
+        if int(graphe.nodes[node]['marge']) == 0:
+            nodecritiquesorted.append(node)
     return nodecritique, graphe, nodecritiquesorted
 
 
