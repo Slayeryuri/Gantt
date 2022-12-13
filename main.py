@@ -1,7 +1,6 @@
 import csv
 import networkx as nx
 import matplotlib.pyplot as plt
-import numpy as np
 
 def opencsv(fichier):
     matrice = []
@@ -33,7 +32,6 @@ def graphelvl(graphe):
       if node not in nodelayer:
         if not list(graphe.predecessors(node)):
           graphe.nodes[node]['layer'] = 0
-          print("les niveau zero : ",node)
           nodelayer.append(node)
         else:
           max = 0
@@ -50,27 +48,7 @@ def graphelvl(graphe):
             nodelayer.append(node)
           else :
             print("ne traite pas",node)
-  print("nodelayer[]",len(nodelayer),nodelayer,"len graphenode",len(graphe.nodes))
   return graphe
-
-
-
-def graphelvl2(graphe):
-    nodelayer = []
-    while len(list(nodelayer)) < len(graphe.nodes):
-        for node in graphe.nodes:
-            if not list(graphe.predecessors(node)):
-                graphe.nodes[node]["layer"] = 0
-                nodelayer.append(node)
-            else:
-                max = 0
-                for predecessor in graphe.predecessors(node):
-                    predecessorlvl = int((graphe.nodes[predecessor]["layer"]))
-                    if predecessorlvl > max:
-                        max = predecessorlvl
-                graphe.nodes[node]["layer"] = max + 1
-                nodelayer.append(node)
-    return graphe
 
 
 def niveaumax(graphe):
@@ -142,13 +120,17 @@ def creationdebutfin(graphe):
 
 
 def chemincritique(graphe):
+
     for node in graphe.nodes():
         if int(graphe.nodes[node]['marge'])==0:
             nodecritique.append(node)
             graphe.nodes[node]['chemincritique']=True
         else:
             graphe.nodes[node]['chemincritique']=False
-    return nodecritique, graphe
+    for node, layer in sorted(G.nodes.data('layer'), key=lambda layer: layer[1]):
+        print("noden", node)
+        nodecritiquesorted.append(node)
+    return nodecritique, graphe, nodecritiquesorted
 
 
 def createGantt(graphe):
@@ -195,30 +177,31 @@ def createGantt(graphe):
             gantt.text(x=(start + duree / 2), y=(hbar * index_task + hbar / 2),
                        s=f"{name} ({duree})", va='center', color='white')
     ######################
+
+
 tableau = opencsv("reverse.csv")
 print("matrice : ",tableau)
 G = graphegenerate(tableau)
 G = graphelvl(G)
+print("niveaumax",niveaumax(G))
 creationdebutfin(G)
-#print("successeurs de : ", [(n, ":", list(G.successors(n))) for n in G.nodes()])
-#print("nombre de niveaux de g : ", niveaumax(G) + 1)
 nbreniveauxgraphinitial = niveaumax(G)
 calculdateauplustot(G)
 dateauplustard(G)
 calculmarges(G)
 nodecritique = []
+nodecritiquesorted = []
 chemincritique(G)
-#print(list(G.predecessors('A')))
-#print(len(G.nodes), "node : ", G.nodes.data())
-#print("edge : ", G.edges.data())
+
 print("niveau :", G.nodes.data("layer"))
 print("dates au plus tôt : ", G.nodes.data("dateauplustot"))
 print("date au plus tard : ", G.nodes.data("dateauplustard"))
 print("marge : ", G.nodes.data("marge"))
 print("chemin critique : ", G.nodes.data("chemincritique"))
 print("list critique : ", nodecritique)
-#print((nodecritique[0]))
+print("list critique ordonné : ",nodecritiquesorted)
 print("dates au plus tôt de fin : ", G.nodes['fin']['dateauplustot'])
+
 fig, gantt = plt.subplots()
 createGantt(G)
 fig, ax = plt.subplots()
